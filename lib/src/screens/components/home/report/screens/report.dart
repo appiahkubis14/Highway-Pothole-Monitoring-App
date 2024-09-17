@@ -1,11 +1,16 @@
 // ignore_for_file: use_build_context_synchronously, sized_box_for_whitespace
 
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:pothole/src/screens/components/home/data/model/pothole_model.dart';
+import 'package:pothole/src/screens/components/home/data/model/service.dart';
 import 'package:pothole/src/screens/components/home/data/screens/map.dart';
 import 'package:video_player/video_player.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -26,6 +31,53 @@ class _PotholeFormState extends State<PotholeForm> {
       TextEditingController();
   Position? _position;
   VideoPlayerController? _videoController;
+  late GoogleMapController mapController;
+  List<Pothole> potholes = [];
+  Set<Marker> markers = {};
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchPotholes();
+  }
+
+  void fetchPotholes() async {
+    ApiService apiService = ApiService();
+    try {
+      List<Pothole> fetchedPotholes = await apiService.fetchPotholes();
+      setState(() {
+        potholes = fetchedPotholes;
+        markers = potholes.asMap().entries.map((entry) {
+          int index = entry.key + 1;
+          Pothole pothole = entry.value;
+
+          return Marker(
+            markerId: MarkerId(pothole.id.toString()),
+            position: LatLng(pothole.locationLat, pothole.locationLon),
+            infoWindow: InfoWindow(
+              title: 'Pothole $index',
+              snippet: pothole.aiDescription,
+            ),
+          );
+        }).toSet();
+        isLoading = false;
+      });
+
+      // Show snackbar for successful data loading
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Potholes loaded successfully')),
+      );
+    } catch (e) {
+      // Show snackbar for failed data loading
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to load potholes')),
+      );
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   Future<void> _pickImage() async {
     final pickedFile =
@@ -35,7 +87,7 @@ class _PotholeFormState extends State<PotholeForm> {
         _image = File(pickedFile.path);
       }
     });
-    _generateDescription();
+    _generateDescription(_image as Uint8List);
   }
 
   Future<void> requestPermissions() async {
@@ -81,7 +133,7 @@ class _PotholeFormState extends State<PotholeForm> {
     });
   }
 
-  Future<void> _generateDescription() async {
+  Future<void> _generateDescription(Uint8List imageBytes) async {
     if (_position == null) {
       await _getLocation();
     }
@@ -98,7 +150,16 @@ class _PotholeFormState extends State<PotholeForm> {
 
     try {
       const prompt = "Describe the content of the image to the user";
-      final content = [Content.text(prompt)];
+
+      // Prepare content with both text and image
+      final content = [
+        Content.multi([
+          TextPart(prompt),
+          DataPart('image/jpeg',
+              imageBytes), // Send the image bytes along with the prompt
+        ])
+      ];
+
       final response = await model.generateContent(content);
 
       if (response.text != null) {
@@ -107,11 +168,13 @@ class _PotholeFormState extends State<PotholeForm> {
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Failed to generate description')));
+          const SnackBar(content: Text('Failed to generate description')),
+        );
       }
     } catch (error) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Error: $error')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $error')),
+      );
     } finally {
       // Dismiss loader
       Navigator.pop(context);
@@ -121,47 +184,81 @@ class _PotholeFormState extends State<PotholeForm> {
   Future<void> _submitPothole() async {
     if (_image == null && _video == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please upload a photo or video')));
+        const SnackBar(content: Text('Please upload a photo or video')),
+      );
       return;
     }
 
     // Show loader
-    _showLoaderDialog('Submitting Pothole Data...');
+    _showLoaderDialog('Submitting Pothole Report...');
 
-    var dio = Dio();
-    var formData = FormData.fromMap({
+    final dio = Dio();
+    final Map<String, dynamic> formDataMap = {
       'ai_description': _aiDescriptionController.text,
       'alternate_description': _alternateDescriptionController.text,
-      'image': _image != null
-          ? await MultipartFile.fromFile(_image!.path, filename: 'pothole.jpg')
-          : null,
-      'video': _video != null
-          ? await MultipartFile.fromFile(_video!.path, filename: 'pothole.mp4')
-          : null,
       'location_lat': _position?.latitude,
       'location_lon': _position?.longitude,
-    });
+    };
 
     try {
-      var response =
-          await dio.post('http://10.0.2.2:8000/api/potholes/', data: formData);
+      String? imageUrl;
+      if (_image != null) {
+        // Upload image and get URL
+        final imageFormData = FormData.fromMap({
+          'file': await MultipartFile.fromFile(_image!.path,
+              filename: 'pothole.jpg'),
+        });
+        final imageResponse = await dio
+            .post('http://10.0.2.2:8000/upload/image', data: imageFormData);
+
+        if (imageResponse.statusCode == 200) {
+          // Check for success
+          imageUrl = imageResponse.data['url'];
+        } else {
+          throw Exception(
+              'Image upload failed with status code ${imageResponse.statusCode}');
+        }
+      }
+
+      String? videoUrl;
+      if (_video != null) {
+        // Upload video and get URL
+        final videoFormData = FormData.fromMap({
+          'file': await MultipartFile.fromFile(_video!.path,
+              filename: 'pothole.mp4'),
+        });
+        final videoResponse = await dio
+            .post('http://10.0.2.2:8000/upload/video', data: videoFormData);
+
+        if (videoResponse.statusCode == 200) {
+          // Check for success
+          videoUrl = videoResponse.data['url'];
+        } else {
+          throw Exception(
+              'Video upload failed with status code ${videoResponse.statusCode}');
+        }
+      }
+
+      // Add URLs to form data
+      formDataMap['image_url'] = imageUrl;
+      formDataMap['video_url'] = videoUrl;
+
+      // Submit pothole report
+      final response = await dio.post('http://10.0.2.2:8000/api/potholes/',
+          data: formDataMap);
 
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Pothole submitted successfully'),
-          ),
+          const SnackBar(content: Text('Pothole submitted successfully')),
         );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Submission failed'),
-          ),
-        );
+        throw Exception(
+            'Pothole submission failed with status code ${response.statusCode}');
       }
     } catch (error) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Error: $error')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $error')),
+      );
       debugPrint('$error');
     } finally {
       // Dismiss loader
@@ -225,6 +322,8 @@ class _PotholeFormState extends State<PotholeForm> {
                             setState(() {
                               _image = null;
                             });
+                            _aiDescriptionController.clear();
+                            _alternateDescriptionController.clear();
                           },
                           icon: const Icon(Icons.delete),
                           color: Colors.deepOrange,
@@ -251,7 +350,7 @@ class _PotholeFormState extends State<PotholeForm> {
             Container(
               width: MediaQuery.of(context).size.width - 40,
               child: TextField(
-                maxLines: 2,
+                maxLines: 10,
                 controller: _aiDescriptionController,
                 readOnly: true,
                 decoration: const InputDecoration(
@@ -271,10 +370,18 @@ class _PotholeFormState extends State<PotholeForm> {
               width: MediaQuery.of(context).size.width - 150,
               height: 63,
               child: ElevatedButton(
-                onPressed: _generateDescription,
-                child: const Text('Generate Description with AI'),
+                onPressed: () async {
+                  if (_image != null) {
+                    // Read the file as bytes
+                    Uint8List imageBytes = await _image!.readAsBytes();
+                    // Pass the bytes to the _generateDescription function
+                    await _generateDescription(imageBytes);
+                  }
+                },
+                child: const Text('Generate Comment with AI'),
               ),
             ),
+
             const SizedBox(height: 20),
             // Alternate Description Text Field
             const Text(
@@ -302,27 +409,36 @@ class _PotholeFormState extends State<PotholeForm> {
               ),
             ),
             // const SizedBox(height: 50),
-            const SizedBox(height: 50),
-            Image.asset(
-              "assets/images/map.png",
-              scale: 0.7,
-              width: MediaQuery.of(context).size.width - 70,
-            ),
+            const SizedBox(height: 30),
+            Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+              Image.asset(
+                "assets/images/map.png",
+                scale: 0.7,
+                width: 100,
+                height: 100,
+              ),
+              GestureDetector(
+                child: IconButton(onPressed: () {}, icon: Icon(Icons.map)),
+              )
+            ]),
             Container(
-              width: MediaQuery.of(context).size.width - 60,
-              height: 63,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => MapPage(),
-                      ));
+              width: MediaQuery.of(context).size.width - 40,
+              height: 500,
+              child: GoogleMap(
+                initialCameraPosition: CameraPosition(
+                  target: potholes.isNotEmpty
+                      ? LatLng(potholes.first.locationLat,
+                          potholes.first.locationLon)
+                      : const LatLng(6.0, -1.0), // Default position
+                  zoom: 12.0,
+                ),
+                markers: markers,
+                onMapCreated: (GoogleMapController controller) {
+                  mapController = controller;
                 },
-                child: const Text('View Pothole Location on Map'),
               ),
             ),
-            const SizedBox(height: 50),
+            const SizedBox(height: 30),
             Stack(
               alignment: Alignment.center,
               children: [
@@ -332,9 +448,14 @@ class _PotholeFormState extends State<PotholeForm> {
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.done) {
-                            return AspectRatio(
-                              aspectRatio: _videoController!.value.aspectRatio,
-                              child: VideoPlayer(_videoController!),
+                            return Container(
+                              height: 400,
+                              width: MediaQuery.of(context).size.width - 40,
+                              child: AspectRatio(
+                                aspectRatio:
+                                    _videoController!.value.aspectRatio,
+                                child: VideoPlayer(_videoController!),
+                              ),
                             );
                           } else {
                             return const CircularProgressIndicator();
@@ -421,3 +542,4 @@ class _PotholeFormState extends State<PotholeForm> {
     );
   }
 }
+// this is the flutter side code , implement that and rewrite the complete code 

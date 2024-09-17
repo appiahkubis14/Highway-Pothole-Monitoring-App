@@ -34,6 +34,7 @@ ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '10.0.2.2']
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+
 # Make sure you have 'rest_framework' installed
 
 # Enable CORS to allow requests from your Flutter app
