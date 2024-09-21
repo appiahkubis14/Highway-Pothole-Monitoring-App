@@ -14,20 +14,23 @@ A comprehensive Flutter application designed for real-time pothole detection and
 
 ## App Preview
 
-| Real-time Detection Screen | Static Image Detection Screen |
-|----------------------------|------------------------------|
-| <img src="https://github.com/user-attachments/assets/f41fba8f-860e-439d-a84c-2028937b90a8" width="250"/> | <img src="https://github.com/user-attachments/assets/d5b7f32c-2457-4ef4-ab6d-8f1d54359bde" width="250"/> |
+### Screenshots
 
-| Pothole Reporting Form | Map View on Report Form |
-|------------------------|------------------------|
-| <img src="https://github.com/user-attachments/assets/4ebc04c3-b53a-40ab-a022-955b992e54d6" width="250"/> 
+<div style="display: flex; flex-wrap: wrap;">
+  <img src="https://github.com/user-attachments/assets/0c148246-fb60-4afe-8d83-caae3442a1e6" width="200"/>
+  <img src="https://github.com/user-attachments/assets/b1ffb3d0-d22f-4140-8542-f2435d88cd58" width="200"/>
+  <img src="https://github.com/user-attachments/assets/3ac73fc2-43d4-4fa1-81d7-1988ee48c9cf" width="200"/>
+</div>
 
-| Additional Screenshot |
-|-----------------------|
-| <img src="https://github.com/user-attachments/assets/a2992814-dd25-441b-9157-fe77e9531378" width="250"/> |
+<div style="display: flex; flex-wrap: wrap;">
+  <img src="https://github.com/user-attachments/assets/cdbd02ce-4a1b-475a-9cbb-66c2f10f1732" width="200"/>
+  <img src="https://github.com/user-attachments/assets/f677bcbe-4484-4626-a365-13cbec0b74d9" width="200"/>
+  <img src="https://github.com/user-attachments/assets/5f9e91af-d137-42ac-bfcf-780788587a5b" width="200"/>
+</div>
 
-https://github.com/user-attachments/assets/6a40198f-61d2-459c-8085-973f83e5269c
 
+
+https://github.com/user-attachments/assets/b1549dc8-3751-4cc3-b454-0babafa60bc0
 
 
 ## Getting Started
