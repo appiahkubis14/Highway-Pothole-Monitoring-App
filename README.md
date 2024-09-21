@@ -20,7 +20,7 @@ A comprehensive Flutter application designed for real-time pothole detection and
 
 | Pothole Reporting Form | Map View on Report Form |
 |------------------------|------------------------|
-| <img src="https://github.com/user-attachments/assets/4ebc04c3-b53a-40ab-a022-955b992e54d6" width="250"/> | <img src="https://github.com/user-attachments/assets/d5b7f32c-2457-4ef4-ab6d-8f1d54359bde" width="250"/> |
+| <img src="https://github.com/user-attachments/assets/4ebc04c3-b53a-40ab-a022-955b992e54d6" width="250"/> 
 
 | Additional Screenshot |
 |-----------------------|
