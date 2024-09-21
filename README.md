@@ -25,10 +25,10 @@ A comprehensive Flutter application designed for real-time pothole detection and
 
 <img src="https://github.com/user-attachments/assets/f41fba8f-860e-439d-a84c-2028937b90a8" width="250"/> | <img src="https://github.com/user-attachments/assets/d5b7f32c-2457-4ef4-ab6d-8f1d54359bde" width="250"/> 
 
-https://github.com/user-attachments/assets/3a0e7de3-4659-4fc0-9f0a-8ae0ba7ba035
+https://github.com/user-attachments/assets/3a0e7de3-4659-4fc0-9f0a-8ae0ba7ba035   <img src="https://github.com/user-attachments/assets/4ebc04c3-b53a-40ab-a022-955b992e54d6" width="250"/> 
 
 
-<img src="https://github.com/user-attachments/assets/4ebc04c3-b53a-40ab-a022-955b992e54d6" width="250"/> 
+
 
 ## Getting Started
 
