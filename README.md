@@ -16,11 +16,11 @@ A comprehensive Flutter application designed for real-time pothole detection and
 
 | Real-time Detection Screen | Static Image Detection Screen |
 |----------------------------|------------------------------|
-| ![Real-time Detection](https://github.com/user-attachments/assets/10c298cd-96f5-42de-95aa-5283cb918517) | ![Static Image Detection](screenshots/app2_static.png) ![WhatsApp Image 2024-09-21 at 02 03 28 (1)](https://github.com/user-attachments/assets/4ebc04c3-b53a-40ab-a022-955b992e54d6)|
+| <img src="https://github.com/user-attachments/assets/f41fba8f-860e-439d-a84c-2028937b90a8" width="250"/> | <img src="https://github.com/user-attachments/assets/d5b7f32c-2457-4ef4-ab6d-8f1d54359bde" width="250"/> |
 
 | Pothole Reporting Form | Map View on Report Form |
 |------------------------|------------------------|
-| ![Report Form](screenshots/app2_reportform.png) | ![Authentication]![WhatsApp Image 2024-09-21 at 02 03 28](https://github.com/user-attachments/assets/d5b7f32c-2457-4ef4-ab6d-8f1d54359bde)![WhatsApp Image 2024-09-21 at 02 03 28 (1)](https://github.com/user-attachments/assets/4ebc04c3-b53a-40ab-a022-955b992e54d6) |
+| <img src="https://github.com/user-attachments/assets/4ebc04c3-b53a-40ab-a022-955b992e54d6" width="250"/> | <img src="https://github.com/user-attachments/assets/d5b7f32c-2457-4ef4-ab6d-8f1d54359bde" width="250"/> |
 
 ## Getting Started
 
@@ -34,12 +34,3 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
-
-![WhatsApp Image 2024-09-21 at 02 03 35 (1)](https://github.com/user-attachments/assets/f41fba8f-860e-439d-a84c-2028937b90a8)
-![WhatsApp Image 2024-09-21 at 02 03 28](https://github.com/user-attachments/assets/d5b7f32c-2457-4ef4-ab6d-8f1d54359bde)
-![WhatsApp Image 2024-09-21 at 02 03 28 (1)](https://github.com/user-attachments/assets/4ebc04c3-b53a-40ab-a022-955b992e54d6)
-
-
-
-
-
