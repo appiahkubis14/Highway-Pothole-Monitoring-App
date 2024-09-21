@@ -16,7 +16,7 @@ A comprehensive Flutter application designed for real-time pothole detection and
 
 | Real-time Detection Screen | Static Image Detection Screen |
 |----------------------------|------------------------------|
-| ![Real-time Detection](screenshots/app2_realtime.png) | ![Static Image Detection](screenshots/app2_static.png) ![WhatsApp Image 2024-09-21 at 02 03 28 (1)](https://github.com/user-attachments/assets/4ebc04c3-b53a-40ab-a022-955b992e54d6)|
+| ![Real-time Detection](https://github.com/user-attachments/assets/10c298cd-96f5-42de-95aa-5283cb918517) | ![Static Image Detection](screenshots/app2_static.png) ![WhatsApp Image 2024-09-21 at 02 03 28 (1)](https://github.com/user-attachments/assets/4ebc04c3-b53a-40ab-a022-955b992e54d6)|
 
 | Pothole Reporting Form | Map View on Report Form |
 |------------------------|------------------------|
@@ -39,7 +39,7 @@ samples, guidance on mobile development, and a full API reference.
 ![WhatsApp Image 2024-09-21 at 02 03 28](https://github.com/user-attachments/assets/d5b7f32c-2457-4ef4-ab6d-8f1d54359bde)
 ![WhatsApp Image 2024-09-21 at 02 03 28 (1)](https://github.com/user-attachments/assets/4ebc04c3-b53a-40ab-a022-955b992e54d6)
 
-https://github.com/user-attachments/assets/10c298cd-96f5-42de-95aa-5283cb918517
+
 
 
 
