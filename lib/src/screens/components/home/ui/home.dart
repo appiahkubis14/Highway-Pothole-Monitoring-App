@@ -1,8 +1,11 @@
 // ignore_for_file: prefer_const_constructors, collection_methods_unrelated_type, depend_on_referenced_packages, unused_element
 
 import 'dart:io';
+import 'package:blurrycontainer/blurrycontainer.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:glass/glass.dart';
+import 'package:glassmorphism/glassmorphism.dart';
 
 import 'package:hive_flutter/hive_flutter.dart';
 // import 'package:map_camera_flutter_2/map_camera_flutter_2.dart';
@@ -61,26 +64,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: TextScroll(
-          'GHANA ROAD POTHOLE DETECTION AND REPORTER ',
-          mode: TextScrollMode.endless,
-          fadedBorder: true,
-          textDirection: TextDirection.rtl,
-          fadeBorderVisibility: FadeBorderVisibility.auto,
-          intervalSpaces: 2,
-          fadeBorderSide: FadeBorderSide.both,
-          velocity: Velocity(pixelsPerSecond: Offset(150, 0)),
-          delayBefore: Duration(milliseconds: 800),
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-            // fontStyle: FontStyle.italic,
-          ),
-          textAlign: TextAlign.right,
-          selectable: true,
-        ),
-      ),
       body: task(option),
       floatingActionButton: _buildSpeedDial(),
     );
@@ -105,8 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
       renderOverlay: true,
       overlayColor: Colors.black,
       overlayOpacity: 0.5,
-      buttonSize:
-          const Size(50.0, 50.0), // Increased button size for the SpeedDial
+      buttonSize: const Size(50.0, 50.0), // Increased button size for the SpeedDial
       children: [
         SpeedDialChild(
           child: Container(
@@ -124,16 +106,14 @@ class _HomeScreenState extends State<HomeScreen> {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Color.fromARGB(255, 25, 29, 28)
-                      .withOpacity(0.5), // Shadow color with opacity
+                  color: Color.fromARGB(255, 25, 29, 28).withOpacity(0.5), // Shadow color with opacity
                   blurRadius: 1, // Amount of blur for the shadow
                   offset: Offset(4, 8), // Position of the shadow
                   spreadRadius: 1, // Spread radius
                 ),
               ],
             ),
-            child: Icon(Icons.logout_rounded,
-                color: Colors.white, size: 30), // Adjusted icon size
+            child: Icon(Icons.logout_rounded, color: Colors.white, size: 30), // Adjusted icon size
           ),
           backgroundColor: Colors.transparent,
           foregroundColor: Colors.white,
@@ -161,16 +141,14 @@ class _HomeScreenState extends State<HomeScreen> {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Color.fromARGB(255, 25, 29, 28)
-                      .withOpacity(0.5), // Shadow color with opacity
+                  color: Color.fromARGB(255, 25, 29, 28).withOpacity(0.5), // Shadow color with opacity
                   blurRadius: 1, // Amount of blur for the shadow
                   offset: Offset(4, 8), // Position of the shadow
                   spreadRadius: 1, // Spread radius
                 ),
               ],
             ),
-            child: Icon(Icons.home,
-                color: Colors.white, size: 30), // Adjusted icon size
+            child: Icon(Icons.home, color: Colors.white, size: 30), // Adjusted icon size
           ),
           backgroundColor: Colors.transparent,
           foregroundColor: Colors.white,
@@ -240,8 +218,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
-            child: Icon(Icons.camera,
-                color: Colors.white, size: 30), // Adjusted icon size
+            child: Icon(Icons.camera, color: Colors.white, size: 30), // Adjusted icon size
           ),
           backgroundColor: Colors.transparent,
           foregroundColor: Colors.white,
@@ -275,8 +252,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
-            child: Icon(Icons.video_call,
-                color: Colors.white, size: 30), // Adjusted icon size
+            child: Icon(Icons.video_call, color: Colors.white, size: 30), // Adjusted icon size
           ),
           backgroundColor: Colors.transparent,
           foregroundColor: Colors.white,
@@ -310,8 +286,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
-            child: Icon(Icons.report,
-                color: Colors.white, size: 30), // Adjusted icon size
+            child: Icon(Icons.report, color: Colors.white, size: 30), // Adjusted icon size
           ),
           backgroundColor: Colors.transparent,
           foregroundColor: Colors.white,
@@ -365,62 +340,90 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Stack(
               children: [
-                Positioned(
-                  child: Container(
-                    height: MediaQuery.of(context).size.height - 80,
-                    child: Image.asset(
-                      'assets/images/13.jpg',
-                      fit: BoxFit.fill,
-                    ),
+                // Background Image
+                Positioned.fill(
+                  child: Image.asset(
+                    'assets/images/13.png', // Your background image
+                    fit: BoxFit.cover,
                   ),
                 ),
+
+                // Glass Effect Container on Top
+                Positioned(
+                  child: GlassmorphicContainer(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height,
+                    borderRadius: 0,
+                    blur: 5, // Higher value for stronger blur
+                    alignment: Alignment.bottomCenter,
+                    border: 2,
+                    linearGradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Colors.white.withOpacity(0.1), // Adjust opacity for the frosted effect
+                        Colors.white.withOpacity(0.05),
+                      ],
+                      stops: [0.1, 1],
+                    ),
+                    borderGradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Colors.white.withOpacity(0.2),
+                        Colors.white.withOpacity(0.2),
+                      ],
+                    ),
+                    child: Container(), // Empty container, or you can add content here
+                  ),
+                ),
+
+                // Carousel Slider positioned at the bottom
                 Positioned(
                   bottom: 0,
-                  left: 0,
-                  right: 0, // Ensures the indicator is centered horizontally
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
-                    children: const [
-                      // Container(
-                      //   width: MediaQuery.of(context).size.width,
-                      //   child: CarouselSlider(
-                      //     options: CarouselOptions(
-                      //       height: 400,
-                      //       aspectRatio: 16 / 9,
-                      //       viewportFraction: 1,
-                      //       initialPage: 0,
-                      //       enableInfiniteScroll: true,
-                      //       reverse: false,
-                      //       autoPlay: true,
-                      //       autoPlayInterval: Duration(seconds: 3),
-                      //       autoPlayAnimationDuration:
-                      //           Duration(milliseconds: 1000),
-                      //       autoPlayCurve: Curves.decelerate,
-                      //       enlargeCenterPage: true,
-                      //       scrollDirection: Axis.horizontal,
-                      //       onPageChanged: (index, reason) {
-                      //         setState(() {});
-                      //       },
-                      //     ),
-                      //     items: imgList.map((i) {
-                      //       return Builder(
-                      //         builder: (BuildContext context) {
-                      //           return Container(
-                      //             height: 100,
-                      //             width:
-                      //                 MediaQuery.of(context).size.width - 100,
-                      //             margin: const EdgeInsets.symmetric(
-                      //                 horizontal: 5.0),
-                      //             child: Image.asset(
-                      //               i,
-                      //               fit: BoxFit.fitHeight,
-                      //             ),
-                      //           );
-                      //         },
-                      //       );
-                      //     }).toList(),
-                      //   ),
-                      // ),
+                    children: [
+                      Container(
+                        width: MediaQuery.of(context).size.width,
+                        child: CarouselSlider(
+                          options: CarouselOptions(
+                            height: 400,
+                            aspectRatio: 16 / 9,
+                            viewportFraction: 1,
+                            initialPage: 0,
+                            enableInfiniteScroll: true,
+                            reverse: false,
+                            autoPlay: true,
+                            autoPlayInterval: Duration(seconds: 3),
+                            autoPlayAnimationDuration: Duration(milliseconds: 1000),
+                            autoPlayCurve: Curves.decelerate,
+                            enlargeCenterPage: true,
+                            scrollDirection: Axis.horizontal,
+                            onPageChanged: (index, reason) {
+                              // Handle page change
+                            },
+                          ),
+                          items: imgList.map((i) {
+                            return Builder(
+                              builder: (BuildContext context) {
+                                return Container(
+                                  height: 60,
+                                  width: MediaQuery.of(context).size.width,
+                                  margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.all(Radius.circular(30)),
+                                    child: Image.asset(
+                                      i,
+                                      fit: BoxFit.fitHeight,
+                                    ),
+                                  ),
+                                );
+                              },
+                            );
+                          }).toList(),
+                        ),
+                      ),
                     ],
                   ),
                 ),

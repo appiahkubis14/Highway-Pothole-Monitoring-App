@@ -63,6 +63,10 @@ dependencies:
   video_player: ^2.9.1
   google_maps_flutter: ^2.6.1
   http_parser: ^4.0.2
+  frosted_glass_effect: ^0.0.2
+  blurrycontainer: ^2.1.0
+  glass: ^2.0.0+1
+  glassmorphism: ^3.0.0
 
 # dev_dependencies:
 #   flutter_test:
@@ -120,7 +124,7 @@ flutter:
     - assets/images/13.png
     - assets/images/sp.png
     - assets/images/map.png
-    - assets/models/best_float32.tflite
+    - assets/models/github_best_float32.tflite
     - assets/models/labels.txt
     # - images/a_dot_ham.jpeg
 

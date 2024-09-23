@@ -132,8 +132,16 @@ class _YoloVideoState extends State<YoloVideo> {
     if (!isLoaded) {
       return const Scaffold(
         body: Center(
-          child: CupertinoActivityIndicator(
-            radius: 20,
+          child: Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CupertinoActivityIndicator(),
+                SizedBox(width: 20),
+                Text("model loading..."),
+              ],
+            ),
           ),
         ),
       );
@@ -171,8 +179,7 @@ class _YoloVideoState extends State<YoloVideo> {
                 color: const Color.fromARGB(255, 0, 150, 0),
                 icon: isRecordingVideo ? Icons.videocam_off : Icons.videocam,
                 iconColor: isRecordingVideo ? Colors.red : Colors.white,
-                onPressed:
-                    isRecordingVideo ? stopVideoRecording : startVideoRecording,
+                onPressed: isRecordingVideo ? stopVideoRecording : startVideoRecording,
               ),
               const SizedBox(width: 30),
             ],
@@ -196,8 +203,7 @@ class _YoloVideoState extends State<YoloVideo> {
                   LineChartBarData(
                     spots: List.generate(
                       detectionCounts.length,
-                      (index) =>
-                          FlSpot(index.toDouble(), detectionCounts[index]),
+                      (index) => FlSpot(index.toDouble(), detectionCounts[index]),
                     ),
                     isCurved: true,
                     color: const Color.fromARGB(255, 0, 225, 255),
@@ -265,7 +271,7 @@ class _YoloVideoState extends State<YoloVideo> {
 
       await widget.vision.loadYoloModel(
         labels: 'assets/models/labels.txt',
-        modelPath: 'assets/models/best_float32.tflite',
+        modelPath: 'assets/models/github_best_float32.tflite',
         modelVersion: "yolov8",
         numThreads: 2,
         quantization: true,
@@ -283,7 +289,7 @@ class _YoloVideoState extends State<YoloVideo> {
     try {
       await widget.vision.loadYoloModel(
         labels: 'assets/models/labels.txt',
-        modelPath: 'assets/models/best_float32.tflite',
+        modelPath: 'assets/models/github_best_float32.tflite',
         modelVersion: "yolov8",
         numThreads: 2,
         quantization: false,
@@ -330,51 +336,63 @@ class _YoloVideoState extends State<YoloVideo> {
     }
   }
 
-  List<Widget> displayBoxesAroundRecognizedObjects(
-      Size screen, BuildContext context) {
+  List<Widget> displayBoxesAroundRecognizedObjects(Size screen, BuildContext context) {
     if (yoloResults.isEmpty || controller.value.previewSize == null) return [];
 
-    double factorX = screen.width / controller.value.previewSize!.height;
-    double factorY = screen.height / controller.value.previewSize!.width;
+    // Get the preview size from the controller
+    final previewSize = controller.value.previewSize!;
+
+    // Factor to scale the coordinates to match the screen size
+    double factorX = screen.width / previewSize.width;
+    double factorY = screen.height / previewSize.height;
 
     return yoloResults.map((result) {
+      // Extract the bounding box
       final box = result["box"];
-      final left = box[0] * factorX;
-      final right = box[1] * factorY;
-      final width = (box[2] - box[0]) * factorX;
-      final height = (box[3] - box[1]) * factorY;
-      const double factor = 29.526773834228514;
-      final double confi = box[4] * 100;
-      final String type = result['tag'];
 
+      // Calculate the position and dimensions of the box
+      final double left = box[0] * factorX;
+      final double top = box[1] * factorY;
+      final double width = (box[2] - box[0]);
+      final double height = (box[3] - box[1]);
+
+      // final left = result["box"][0] * factorX;
+      // final top = result["box"][1] * factorY;
+      // final right = result["box"][2] * factorX;
+      // final bottom = result["box"][3] * factorY;
+
+      // Confidence score and object type
+      final double confidence = box[4] * 100;
+      final String objectType = result['tag'];
+
+      // Color for the bounding box
       Color colorPick = Colors.red;
-      // takePhoto();
+
+      // Start listening to location (if required)
       _startListeningToLocation();
-      // _calculateDistance();
-      return Stack(
-        children: [
-          Positioned(
-            left: left,
-            top: right,
-            width: width,
-            height: height,
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border.all(
-                    color: const Color.fromARGB(255, 235, 42, 17), width: 2.0),
-              ),
-              child: Text(
-                "${result['tag']} ${(box[4] * 100).toStringAsFixed(0)}%",
-                style: const TextStyle(
-                  backgroundColor: Colors.red,
-                  color: Colors.white,
-                  fontSize: 10.0,
-                ),
-              ),
+
+      // Return the positioned bounding box widget
+      return Positioned(
+        left: left,
+        top: top,
+        width: width,
+        height: height,
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: colorPick, // Bounding box color
+              width: 2.0, // Border width
             ),
           ),
-          //
-        ],
+          child: Text(
+            "$objectType ${confidence.toStringAsFixed(0)}%", // Display object type and confidence
+            style: const TextStyle(
+              backgroundColor: Colors.red,
+              color: Colors.white,
+              fontSize: 10.0,
+            ),
+          ),
+        ),
       );
     }).toList();
   }
@@ -403,8 +421,7 @@ class _YoloVideoState extends State<YoloVideo> {
     if (controller != null && !controller.value.isRecordingVideo) {
       try {
         final videoDirectory = await getExternalStorageDirectory();
-        final videoDirectoryPath =
-            join(videoDirectory!.path, 'Videos Recorded');
+        final videoDirectoryPath = join(videoDirectory!.path, 'Videos Recorded');
 
         // Create the directory if it doesn't exist
         final directory = Directory(videoDirectoryPath);
@@ -412,8 +429,7 @@ class _YoloVideoState extends State<YoloVideo> {
           await directory.create(recursive: true);
         }
 
-        final videoPath = join(videoDirectoryPath,
-            'detection_video_${DateTime.now().millisecondsSinceEpoch}.mp4');
+        final videoPath = join(videoDirectoryPath, 'detection_video_${DateTime.now().millisecondsSinceEpoch}.mp4');
 
         await controller.startVideoRecording();
         setState(() {
@@ -431,8 +447,7 @@ class _YoloVideoState extends State<YoloVideo> {
       try {
         final videoFile = await controller.stopVideoRecording();
         final videoDirectory = await getExternalStorageDirectory();
-        final videoDirectoryPath =
-            join(videoDirectory!.path, 'Videos Recorded');
+        final videoDirectoryPath = join(videoDirectory!.path, 'Videos Recorded');
 
         // Create the directory if it doesn't exist
         final directory = Directory(videoDirectoryPath);
@@ -440,8 +455,7 @@ class _YoloVideoState extends State<YoloVideo> {
           await directory.create(recursive: true);
         }
 
-        final videoPath = join(videoDirectoryPath,
-            'detection_video_${DateTime.now().millisecondsSinceEpoch}.mp4');
+        final videoPath = join(videoDirectoryPath, 'detection_video_${DateTime.now().millisecondsSinceEpoch}.mp4');
 
         await videoFile.saveTo(videoPath);
         setState(() {

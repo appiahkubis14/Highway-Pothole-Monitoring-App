@@ -2,11 +2,13 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'dart:async';
 import 'package:flutter_vision/flutter_vision.dart';
+import 'package:glassmorphism/glassmorphism.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -42,12 +44,37 @@ class _DetectionOnFramesState extends State<DetectionOnFrames> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
     final Size size = MediaQuery.of(context).size;
     if (!isLoaded) {
       return const Scaffold(
         body: Center(
-          child: CupertinoActivityIndicator(
-            radius: 20,
+          child: Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CupertinoActivityIndicator(
+                          radius: 30,
+                        ),
+                        SizedBox(width: 20),
+                        Text(
+                          "model loading...",
+                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       );
@@ -56,14 +83,39 @@ class _DetectionOnFramesState extends State<DetectionOnFrames> {
       extendBody: true,
       body: Stack(
         children: [
-          Positioned(
+          Positioned.fill(
               child: Container(
-            decoration: BoxDecoration(
-                image: DecorationImage(
-                    image: AssetImage("assets/images/Background.jpg"),
-                    fit: BoxFit.cover,
-                    opacity: 0.3)),
+            decoration: const BoxDecoration(
+                image: DecorationImage(image: AssetImage("assets/images/13.png"), fit: BoxFit.cover)),
           )),
+          Positioned(
+            child: GlassmorphicContainer(
+              width: screenWidth * 1.00,
+              height: screenHeight * 1.00,
+              borderRadius: 0,
+              blur: 15, // Higher value for stronger blur
+              alignment: Alignment.bottomCenter,
+              border: 2,
+              linearGradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.white.withOpacity(0.1), // Adjust opacity for the frosted effect
+                  Colors.white.withOpacity(0.05),
+                ],
+                stops: [0.1, 1],
+              ),
+              borderGradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.white.withOpacity(0.2),
+                  Colors.white.withOpacity(0.2),
+                ],
+              ),
+              child: Container(), // Empty container, or you can add content here
+            ),
+          ),
           SingleChildScrollView(
             child: Column(
               children: [
@@ -78,8 +130,7 @@ class _DetectionOnFramesState extends State<DetectionOnFrames> {
                         return const SizedBox();
                       }
 
-                      double aspectRatio = imageDimensions[index]['width']! /
-                          imageDimensions[index]['height']!;
+                      double aspectRatio = imageDimensions[index]['width']! / imageDimensions[index]['height']!;
                       double height = size.width / aspectRatio;
 
                       return SizedBox(
@@ -88,13 +139,17 @@ class _DetectionOnFramesState extends State<DetectionOnFrames> {
                         child: Stack(
                           fit: StackFit.expand,
                           children: [
-                            Image.file(
-                              imageFile,
-                              fit: BoxFit.contain,
+                            Container(
+                              padding: EdgeInsets.all(10),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.all(Radius.circular(20)),
+                                child: Image.file(
+                                  imageFile,
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
                             ),
-                            if (index < yoloResults.length)
-                              ...displayBoxesAroundRecognizedObjects(
-                                  size, index),
+                            if (index < yoloResults.length) ...displayBoxesAroundRecognizedObjects(size, index),
                           ],
                         ),
                       );
@@ -135,8 +190,7 @@ class _DetectionOnFramesState extends State<DetectionOnFrames> {
                   ),
                   Column(
                     children: [
-                      const Text(
-                          'Percentage distribution of detections across all images'),
+                      const Text('Percentage distribution of detections across all images'),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: SizedBox(
@@ -190,8 +244,7 @@ class _DetectionOnFramesState extends State<DetectionOnFrames> {
                   ),
                   Column(
                     children: [
-                      const Text(
-                          'Percentage distribution of detections across all images'),
+                      const Text('Percentage distribution of detections across all images'),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: SizedBox(
@@ -214,8 +267,21 @@ class _DetectionOnFramesState extends State<DetectionOnFrames> {
           ),
           if (_isLoading)
             const Center(
-              child: CupertinoActivityIndicator(
-                radius: 20,
+              child: Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CupertinoActivityIndicator(
+                      radius: 20,
+                    ),
+                    SizedBox(width: 20),
+                    Text(
+                      "Loading in progress...",
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                    ),
+                  ],
+                ),
               ),
             ),
         ],
@@ -228,15 +294,13 @@ class _DetectionOnFramesState extends State<DetectionOnFrames> {
             child: Padding(
               padding: const EdgeInsets.only(right: 280),
               child: SpeedDial(
-                label: const Text("OPEN",
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                label: const Text("OPEN", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                 icon: Icons.open_in_full,
                 activeIcon: Icons.close,
-                backgroundColor: const Color.fromARGB(31, 87, 12, 226),
-                foregroundColor: const Color.fromARGB(255, 240, 243, 243),
+                // backgroundColor: const Color.fromARGB(31, 87, 12, 226),
+                // foregroundColor: const Color.fromARGB(255, 240, 243, 243),
                 activeBackgroundColor: const Color.fromARGB(255, 236, 11, 11),
-                activeForegroundColor: Colors.white,
+                // activeForegroundColor: Colors.white,
                 switchLabelPosition: true,
                 visible: true,
                 closeManually: false,
@@ -247,10 +311,17 @@ class _DetectionOnFramesState extends State<DetectionOnFrames> {
                 children: [
                   SpeedDialChild(
                       // shape: const CircleBorder(),
+                      child: const Icon(Icons.upload),
+                      backgroundColor: const Color.fromARGB(255, 78, 180, 172),
+                      foregroundColor: Colors.white,
+                      label: 'Import Data',
+                      onTap: () => pickImages(context)),
+                  SpeedDialChild(
+                      // shape: const CircleBorder(),
                       child: const Icon(Icons.download),
                       backgroundColor: const Color.fromARGB(255, 243, 33, 243),
                       foregroundColor: Colors.white,
-                      label: 'Export Results',
+                      label: 'Export Data',
                       onTap: () => exportDetectedImages(context)),
                   SpeedDialChild(
                       // shape: const CircleBorder(),
@@ -259,13 +330,6 @@ class _DetectionOnFramesState extends State<DetectionOnFrames> {
                       foregroundColor: Colors.white,
                       label: 'Start Recognition',
                       onTap: () => yoloOnImages(context)),
-                  SpeedDialChild(
-                      // shape: const CircleBorder(),
-                      child: const Icon(Icons.upload),
-                      backgroundColor: const Color.fromARGB(255, 78, 180, 172),
-                      foregroundColor: Colors.white,
-                      label: 'Upload Foods',
-                      onTap: () => pickImages(context)),
                   SpeedDialChild(
                     // shape: const CircleBorder(),
                     child: const Icon(Icons.bar_chart),
@@ -290,7 +354,7 @@ class _DetectionOnFramesState extends State<DetectionOnFrames> {
   Future<void> loadYoloModel() async {
     await widget.vision.loadYoloModel(
       labels: 'assets/models/labels.txt',
-      modelPath: 'assets/models/best_float32.tflite',
+      modelPath: 'assets/models/github_best_float32.tflite',
       modelVersion: "yolov8",
       quantization: false,
       numThreads: 2,
@@ -324,7 +388,6 @@ class _DetectionOnFramesState extends State<DetectionOnFrames> {
         imageDimensions = imageDimensions;
       });
     }
-    yoloOnImages(context);
     setState(() {
       _isLoading = false;
     });
@@ -410,8 +473,7 @@ class _DetectionOnFramesState extends State<DetectionOnFrames> {
     if (yoloResults.isEmpty || index >= yoloResults.length) return [];
 
     double factorX = screen.width / imageDimensions[index]["width"]!;
-    double aspectRatio =
-        imageDimensions[index]["width"]! / imageDimensions[index]["height"]!;
+    double aspectRatio = imageDimensions[index]["width"]! / imageDimensions[index]["height"]!;
     double newWidth = screen.width;
     double newHeight = newWidth / aspectRatio;
     double factorY = newHeight / imageDimensions[index]["height"]!;
@@ -501,9 +563,7 @@ class _DetectionOnFramesState extends State<DetectionOnFrames> {
     List<ScatterSpot> spots = [];
     for (int i = 0; i < yoloResults.length; i++) {
       spots.add(ScatterSpot(i.toDouble(), yoloResults[i].length.toDouble(),
-          dotPainter: FlDotCirclePainter(
-              color: Color.fromARGB(255, 248, 252, 26), radius: 5),
-          show: true));
+          dotPainter: FlDotCirclePainter(color: Color.fromARGB(255, 248, 252, 26), radius: 5), show: true));
     }
 
     return spots;
