@@ -29,6 +29,14 @@ class _PotholeFormState extends State<PotholeForm> {
       TextEditingController();
   final TextEditingController _alternateDescriptionController =
       TextEditingController();
+
+  final TextEditingController _origin = TextEditingController();
+  final TextEditingController _destination = TextEditingController();
+
+  final TextEditingController _town_name = TextEditingController();
+  final TextEditingController _road_type = TextEditingController();
+  final TextEditingController _road_name = TextEditingController();
+
   Position? _position;
   VideoPlayerController? _videoController;
   late GoogleMapController mapController;
@@ -36,47 +44,70 @@ class _PotholeFormState extends State<PotholeForm> {
   Set<Marker> markers = {};
   bool isLoading = true;
 
-  @override
-  void initState() {
-    super.initState();
-    fetchPotholes();
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   fetchPotholes();
+  // }
 
-  void fetchPotholes() async {
-    ApiService apiService = ApiService();
-    try {
-      List<Pothole> fetchedPotholes = await apiService.fetchPotholes();
-      setState(() {
-        potholes = fetchedPotholes;
-        markers = potholes.asMap().entries.map((entry) {
-          int index = entry.key + 1;
-          Pothole pothole = entry.value;
+  // void fetchPotholes() async {
+  //   ApiService apiService = ApiService();
+  //   try {
+  //     List<Pothole> fetchedPotholes = await apiService.fetchPotholes();
+  //     setState(() {
+  //       potholes = fetchedPotholes;
+  //       markers = potholes.asMap().entries.map((entry) {
+  //         int index = entry.key + 1;
+  //         Pothole pothole = entry.value;
 
-          return Marker(
-            markerId: MarkerId(pothole.id.toString()),
-            position: LatLng(pothole.locationLat, pothole.locationLon),
-            infoWindow: InfoWindow(
-              title: 'Pothole $index',
-              snippet: pothole.aiDescription,
-            ),
-          );
-        }).toSet();
-        isLoading = false;
-      });
+  //         return Marker(
+  //           markerId: MarkerId(pothole.id.toString()),
+  //           position: LatLng(pothole.locationLat, pothole.locationLon),
+  //           infoWindow: InfoWindow(
+  //             title: 'Pothole $index',
+  //             snippet: pothole.aiDescription,
+  //           ),
+  //         );
+  //       }).toSet();
+  //       isLoading = false;
+  //     });
 
-      // Show snackbar for successful data loading
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Potholes loaded successfully')),
-      );
-    } catch (e) {
-      // Show snackbar for failed data loading
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to load potholes')),
-      );
-      setState(() {
-        isLoading = false;
-      });
-    }
+  //     // Show snackbar for successful data loading
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(content: Text('Potholes loaded successfully')),
+  //     );
+  //   } catch (e) {
+  //     // Show snackbar for failed data loading
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(content: Text('Failed to load potholes')),
+  //     );
+  //     setState(() {
+  //       isLoading = false;
+  //     });
+  //   }
+  // }
+  void _refreshMap() {
+    setState(() {
+      // Example: updating the camera position to current position
+      if (_position != null) {
+        mapController?.animateCamera(
+          CameraUpdate.newLatLng(
+            LatLng(_position!.latitude, _position!.longitude),
+          ),
+        );
+      }
+
+      // Example: updating markers
+      markers.clear(); // Clear existing markers
+      if (_position != null) {
+        markers.add(
+          Marker(
+            markerId: const MarkerId("currentLocation"),
+            position: LatLng(_position!.latitude, _position!.longitude),
+          ),
+        );
+      }
+    });
   }
 
   Future<void> _pickImage() async {
@@ -198,21 +229,23 @@ class _PotholeFormState extends State<PotholeForm> {
       'alternate_description': _alternateDescriptionController.text,
       'location_lat': _position?.latitude,
       'location_lon': _position?.longitude,
+      'town_name': _town_name.text,
+      'road_type': _road_type.text,
+      'road_name': _road_name.text,
+      'origin': _origin.text,
+      'destination': _destination.text
     };
 
     try {
       String? imageUrl;
       if (_image != null) {
-        // Upload image and get URL
         final imageFormData = FormData.fromMap({
           'file': await MultipartFile.fromFile(_image!.path,
               filename: 'pothole.jpg'),
         });
         final imageResponse = await dio
-            .post('http://10.0.2.2:8000/upload/image', data: imageFormData);
-
+            .post('http://10.0.2.2:8000/api/upload/image', data: imageFormData);
         if (imageResponse.statusCode == 200) {
-          // Check for success
           imageUrl = imageResponse.data['url'];
         } else {
           throw Exception(
@@ -222,16 +255,13 @@ class _PotholeFormState extends State<PotholeForm> {
 
       String? videoUrl;
       if (_video != null) {
-        // Upload video and get URL
         final videoFormData = FormData.fromMap({
           'file': await MultipartFile.fromFile(_video!.path,
               filename: 'pothole.mp4'),
         });
         final videoResponse = await dio
-            .post('http://10.0.2.2:8000/upload/video', data: videoFormData);
-
+            .post('http://10.0.2.2:8000/api/upload/video', data: videoFormData);
         if (videoResponse.statusCode == 200) {
-          // Check for success
           videoUrl = videoResponse.data['url'];
         } else {
           throw Exception(
@@ -239,11 +269,9 @@ class _PotholeFormState extends State<PotholeForm> {
         }
       }
 
-      // Add URLs to form data
       formDataMap['image_url'] = imageUrl;
       formDataMap['video_url'] = videoUrl;
 
-      // Submit pothole report
       final response = await dio.post('http://10.0.2.2:8000/api/potholes/',
           data: formDataMap);
 
@@ -259,9 +287,8 @@ class _PotholeFormState extends State<PotholeForm> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $error')),
       );
-      debugPrint('$error');
+      print(error);
     } finally {
-      // Dismiss loader
       Navigator.pop(context);
     }
   }
@@ -308,11 +335,16 @@ class _PotholeFormState extends State<PotholeForm> {
                         child: const Text('Take Photo'),
                       )
                     : Container(
+                        margin: const EdgeInsets.only(left: 10, right: 10),
                         height: 300,
                         width: MediaQuery.of(context).size.width,
-                        child: Image.file(
-                          _image!,
-                          fit: BoxFit.cover,
+                        child: ClipRRect(
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(20)),
+                          child: Image.file(
+                            _image!,
+                            fit: BoxFit.cover,
+                          ),
                         )),
                 _image != null
                     ? Positioned(
@@ -364,6 +396,7 @@ class _PotholeFormState extends State<PotholeForm> {
                 ),
               ),
             ),
+
             const SizedBox(height: 10),
             // Generate AI Description Button
             Container(
@@ -378,7 +411,7 @@ class _PotholeFormState extends State<PotholeForm> {
                     await _generateDescription(imageBytes);
                   }
                 },
-                child: const Text('Generate Comment with AI'),
+                child: const Text('Comment with AI'),
               ),
             ),
 
@@ -394,10 +427,11 @@ class _PotholeFormState extends State<PotholeForm> {
             Container(
               width: MediaQuery.of(context).size.width - 40,
               child: TextField(
-                maxLines: 2,
+                maxLines: 3,
                 controller: _alternateDescriptionController,
                 decoration: const InputDecoration(
-                  labelText: '',
+                  hintText:
+                      'Comment   e.g The road now is severe and needs immediate attention',
                   filled: true,
                   border: OutlineInputBorder(
                     borderSide: BorderSide.none,
@@ -408,34 +442,125 @@ class _PotholeFormState extends State<PotholeForm> {
                 ),
               ),
             ),
-            // const SizedBox(height: 50),
-            const SizedBox(height: 30),
-            Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-              Image.asset(
-                "assets/images/map.png",
-                scale: 0.7,
-                width: 100,
-                height: 100,
-              ),
-              GestureDetector(
-                child: IconButton(onPressed: () {}, icon: Icon(Icons.map)),
-              )
-            ]),
+            const SizedBox(
+              height: 10,
+            ),
             Container(
               width: MediaQuery.of(context).size.width - 40,
-              height: 500,
-              child: GoogleMap(
-                initialCameraPosition: CameraPosition(
-                  target: potholes.isNotEmpty
-                      ? LatLng(potholes.first.locationLat,
-                          potholes.first.locationLon)
-                      : const LatLng(6.0, -1.0), // Default position
-                  zoom: 12.0,
+              child: TextField(
+                controller: _road_name,
+                decoration: const InputDecoration(
+                  hintText: 'Specify Road Name    e.g Tema Motor Way',
+                  filled: true,
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(20),
+                    ),
+                  ),
                 ),
-                markers: markers,
-                onMapCreated: (GoogleMapController controller) {
-                  mapController = controller;
-                },
+              ),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            Container(
+              width: MediaQuery.of(context).size.width - 40,
+              child: TextField(
+                controller: _origin,
+                decoration: const InputDecoration(
+                  hintText: 'Your Origin    e.g Kumasi',
+                  filled: true,
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(20),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+
+            Container(
+              width: MediaQuery.of(context).size.width - 40,
+              child: TextField(
+                controller: _destination,
+                decoration: const InputDecoration(
+                  hintText: 'Your Destinaltion    e.g Cape Coast',
+                  filled: true,
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(20),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+
+            Container(
+              width: MediaQuery.of(context).size.width - 40,
+              child: TextField(
+                controller: _town_name,
+                decoration: const InputDecoration(
+                  hintText: 'Specify City | Town Name   e.g Accra',
+                  filled: true,
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(20),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+
+            Container(
+              width: MediaQuery.of(context).size.width - 40,
+              child: TextField(
+                controller: _road_type,
+                decoration: const InputDecoration(
+                  hintText: 'Road Type   e.g Highway , Feeder Road',
+                  filled: true,
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(20),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            // const SizedBox(height: 50),
+            const SizedBox(height: 30),
+
+            ClipRRect(
+              borderRadius: const BorderRadius.all(Radius.circular(20)),
+              child: Container(
+                width: MediaQuery.of(context).size.width - 40,
+                height: 500,
+                child: GoogleMap(
+                  initialCameraPosition: CameraPosition(
+                    target: _position != null
+                        ? LatLng(_position!.latitude, _position!.longitude)
+                        : const LatLng(6.0, -1.0), // Default position
+                    zoom: 8.0,
+                  ),
+                  markers: markers,
+                  onMapCreated: (GoogleMapController controller) {
+                    mapController = controller;
+                  },
+                ),
               ),
             ),
             const SizedBox(height: 30),
@@ -448,13 +573,16 @@ class _PotholeFormState extends State<PotholeForm> {
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.done) {
-                            return Container(
-                              height: 400,
-                              width: MediaQuery.of(context).size.width - 40,
-                              child: AspectRatio(
-                                aspectRatio:
-                                    _videoController!.value.aspectRatio,
-                                child: VideoPlayer(_videoController!),
+                            return ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: Container(
+                                height: 400,
+                                width: MediaQuery.of(context).size.width - 40,
+                                child: AspectRatio(
+                                  aspectRatio:
+                                      _videoController!.value.aspectRatio,
+                                  child: VideoPlayer(_videoController!),
+                                ),
                               ),
                             );
                           } else {

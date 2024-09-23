@@ -62,8 +62,13 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.common.CommonMiddleware',
+    
+    # Add the custom StripNewlineMiddleware here
+    'potholes.strip_newline_middleware.StripNewlineMiddleware',
+    
+    "django.middleware.common.CommonMiddleware",  # You have this twice, keep only one instance
 ]
+
 CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = "pothole_detection.urls"

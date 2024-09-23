@@ -71,10 +71,10 @@ class _HomeScreenState extends State<HomeScreen> {
           intervalSpaces: 2,
           fadeBorderSide: FadeBorderSide.both,
           velocity: Velocity(pixelsPerSecond: Offset(150, 0)),
-          delayBefore: Duration(milliseconds: 500),
+          delayBefore: Duration(milliseconds: 800),
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 30,
+            fontSize: 20,
             // fontStyle: FontStyle.italic,
           ),
           textAlign: TextAlign.right,
@@ -369,7 +369,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Container(
                     height: MediaQuery.of(context).size.height - 80,
                     child: Image.asset(
-                      'assets/images/sp.png',
+                      'assets/images/13.jpg',
                       fit: BoxFit.fill,
                     ),
                   ),
@@ -380,45 +380,47 @@ class _HomeScreenState extends State<HomeScreen> {
                   right: 0, // Ensures the indicator is centered horizontally
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: MediaQuery.of(context).size.width,
-                        child: CarouselSlider(
-                          options: CarouselOptions(
-                            height: 400,
-                            aspectRatio: 16 / 9,
-                            viewportFraction: 1,
-                            initialPage: 0,
-                            enableInfiniteScroll: true,
-                            reverse: false,
-                            autoPlay: true,
-                            autoPlayInterval: Duration(seconds: 3),
-                            autoPlayAnimationDuration:
-                                Duration(milliseconds: 1000),
-                            autoPlayCurve: Curves.decelerate,
-                            enlargeCenterPage: true,
-                            scrollDirection: Axis.horizontal,
-                            onPageChanged: (index, reason) {
-                              setState(() {});
-                            },
-                          ),
-                          items: imgList.map((i) {
-                            return Builder(
-                              builder: (BuildContext context) {
-                                return Container(
-                                  width: MediaQuery.of(context).size.width,
-                                  margin: const EdgeInsets.symmetric(
-                                      horizontal: 5.0),
-                                  child: Image.asset(
-                                    i,
-                                    fit: BoxFit.fitHeight,
-                                  ),
-                                );
-                              },
-                            );
-                          }).toList(),
-                        ),
-                      ),
+                    children: const [
+                      // Container(
+                      //   width: MediaQuery.of(context).size.width,
+                      //   child: CarouselSlider(
+                      //     options: CarouselOptions(
+                      //       height: 400,
+                      //       aspectRatio: 16 / 9,
+                      //       viewportFraction: 1,
+                      //       initialPage: 0,
+                      //       enableInfiniteScroll: true,
+                      //       reverse: false,
+                      //       autoPlay: true,
+                      //       autoPlayInterval: Duration(seconds: 3),
+                      //       autoPlayAnimationDuration:
+                      //           Duration(milliseconds: 1000),
+                      //       autoPlayCurve: Curves.decelerate,
+                      //       enlargeCenterPage: true,
+                      //       scrollDirection: Axis.horizontal,
+                      //       onPageChanged: (index, reason) {
+                      //         setState(() {});
+                      //       },
+                      //     ),
+                      //     items: imgList.map((i) {
+                      //       return Builder(
+                      //         builder: (BuildContext context) {
+                      //           return Container(
+                      //             height: 100,
+                      //             width:
+                      //                 MediaQuery.of(context).size.width - 100,
+                      //             margin: const EdgeInsets.symmetric(
+                      //                 horizontal: 5.0),
+                      //             child: Image.asset(
+                      //               i,
+                      //               fit: BoxFit.fitHeight,
+                      //             ),
+                      //           );
+                      //         },
+                      //       );
+                      //     }).toList(),
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),

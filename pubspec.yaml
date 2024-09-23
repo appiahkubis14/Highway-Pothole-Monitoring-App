@@ -120,6 +120,8 @@ flutter:
     - assets/images/13.png
     - assets/images/sp.png
     - assets/images/map.png
+    - assets/models/best_float32.tflite
+    - assets/models/labels.txt
     # - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

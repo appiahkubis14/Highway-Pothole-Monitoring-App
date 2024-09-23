@@ -1,13 +1,8 @@
-# urls.py
-
 from django.urls import path
-from .views import *
+from .views import UploadImageView, UploadVideoView, SubmitPotholeReportView
 
 urlpatterns = [
-    path('potholes/', PotholeCreateView.as_view(), name='create_pothole'),
-    path('fetch_potholes/', PotholeListAPIView.as_view(), name='pothole-list'),
-    path('upload/image/', upload_image, name='upload_image'),
-    path('upload/video/', upload_video, name='upload_video'),
-    path('potholes/', submit_pothole_report, name='submit_pothole'),
-
+    path('potholes/', SubmitPotholeReportView.as_view(), name='submit_pothole'),  # No spaces in 'potholes/'
+    path('upload/image', UploadImageView.as_view(), name='upload_image'),  # No spaces in 'upload/image'
+    path('upload/video', UploadVideoView.as_view(), name='upload_video'),  # No spaces in 'upload/video'
 ]
